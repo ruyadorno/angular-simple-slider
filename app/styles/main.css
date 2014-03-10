@@ -3,6 +3,3 @@ body {
   padding-top: 20px;
   padding-bottom: 20px;
 }
-
-simple-slider { width:612px; height:612px; position:absolute; top:50%; left:50%; margin:-306px 0 0 -306px; overflow:hidden;}
-simple-slider img{ position:absolute; top:0; left:0; }

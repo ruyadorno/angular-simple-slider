@@ -1,6 +1,17 @@
 {
   "name": "angular-simple-slider",
   "version": "0.0.0",
+  "authors": [
+    "Ruy Adorno"
+  ],
+  "keywords": [
+    "slider",
+    "simple",
+    "gallery",
+    "carousel",
+    "angular",
+    "images"
+  ],
   "dependencies": {
     "angular": ">=1.0.0"
   },
@@ -8,5 +19,6 @@
     "angular-mocks": "1.2.6",
     "angular-scenario": "1.2.6",
     "SimpleSlider": ">=0.1.0"
-  }
+  },
+  "license": "MIT"
 }
