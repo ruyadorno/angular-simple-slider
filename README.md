@@ -10,6 +10,8 @@ This **AngularJS** directive aims to provide a simple slider element for your ap
 
 ## Usage
 
+To use the directive, simply import one of the `dist/` files into your html and initiate the `angularSimpleSliderApp` module.
+
 The following example shows you how to configure a slider with 612x612 pixels using an fading animation:
 
 ```html
