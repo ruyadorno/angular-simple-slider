@@ -289,31 +289,53 @@ module.exports = function (grunt) {
       ]
     },
 
-    // By default, your `index.html`'s <!-- Usemin block --> will take care of
-    // minification. These next options are pre-configured if you do not wish
-    // to use the Usemin blocks.
-    // cssmin: {
-    //   dist: {
-    //     files: {
-    //       '<%= yeoman.dist %>/styles/main.css': [
-    //         '.tmp/styles/{,*/}*.css',
-    //         '<%= yeoman.app %>/styles/{,*/}*.css'
-    //       ]
-    //     }
-    //   }
-    // },
-    // uglify: {
-    //   dist: {
-    //     files: {
-    //       '<%= yeoman.dist %>/scripts/scripts.js': [
-    //         '<%= yeoman.dist %>/scripts/scripts.js'
-    //       ]
-    //     }
-    //   }
-    // },
-    // concat: {
-    //   dist: {}
-    // },
+    bump: {
+      options: {
+        files: ['package.json', 'bower.json', 'README.md'],
+        updateConfigs: [],
+        commit: true,
+        commitMessage: 'Release v%VERSION%',
+        commitFiles: ['-a'], // '-a' for all files
+        createTag: true,
+        tagName: 'v%VERSION%',
+        tagMessage: 'Version %VERSION%',
+        push: true,
+        pushTo: 'origin master',
+        gitDescribeOptions: '--tags --always --abbrev=1 --dirty=-d' // options to use with '$ git describe'
+      }
+    },
+
+    uglify: {
+      options: {
+        mangle: false,
+        compress: {
+          warnings: true
+        }
+      },
+      dist: {
+        src: [
+          'app/bower_components/SimpleSlider/dist/simpleslider.js',
+          'app/scripts/app.js',
+          'app/scripts/services/simplesliderservice.js',
+          'app/scripts/directives/simple-slider.js'
+        ],
+        dest: 'dist/angular-simpleslider.min.js'
+      }
+    },
+
+    concat: {
+      options: {
+        separator: ';',
+      },
+      dist: {
+        src: [
+          'app/bower_components/SimpleSlider/dist/simpleslider.js',
+          'app/scripts/app.js',
+          'app/scripts/services/simplesliderservice.js',
+          'app/scripts/directives/simple-slider.js'
+        ],
+        dest: 'dist/angular-simpleslider.js' },
+    },
 
     // Test settings
     karma: {
@@ -353,26 +375,10 @@ module.exports = function (grunt) {
     'karma'
   ]);
 
-  grunt.registerTask('build', [
-    'clean:dist',
-    'bower-install',
-    'useminPrepare',
-    'concurrent:dist',
-    'autoprefixer',
-    'concat',
-    'ngmin',
-    'copy:dist',
-    'cdnify',
-    'cssmin',
-    'uglify',
-    'rev',
-    'usemin',
-    'htmlmin'
+  grunt.registerTask('release', [
+    'uglify:dist',
+    'concat:dist',
+    'bump'
   ]);
 
-  grunt.registerTask('default', [
-    'newer:jshint',
-    'test',
-    'build'
-  ]);
 };
