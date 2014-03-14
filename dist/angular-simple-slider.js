@@ -367,8 +367,8 @@
 });
 ;'use strict';
 
-angular.module('angularSimpleSliderApp', []);
-;angular.module('angularSimpleSliderApp')
+angular.module('angularSimpleSlider', []);
+;angular.module('angularSimpleSlider')
   .factory('SimpleSliderService', function () {
 
     'use strict';
@@ -376,7 +376,7 @@ angular.module('angularSimpleSliderApp', []);
     return window.SimpleSlider;
 
   });
-;angular.module('angularSimpleSliderApp')
+;angular.module('angularSimpleSlider')
   .directive('simpleSlider', ['SimpleSliderService', function (SimpleSliderService) {
 
     'use strict';
