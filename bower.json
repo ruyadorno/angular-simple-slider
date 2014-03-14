@@ -18,7 +18,7 @@
   "devDependencies": {
     "angular-mocks": "1.2.6",
     "angular-scenario": "1.2.6",
-    "SimpleSlider": ">=0.1.0"
+    "SimpleSlider": ">=0.2.0"
   },
   "license": "MIT"
 }

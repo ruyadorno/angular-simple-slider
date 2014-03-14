@@ -1,11 +1,23 @@
-'use strict';
-
 angular.module('angularSimpleSliderApp')
   .directive('simpleSlider', ['SimpleSliderService', function (SimpleSliderService) {
+
+    'use strict';
+
     return {
+
       restrict: 'E',
+      scope: {},
+
       link: function postLink(scope, element, attrs) {
-        scope.slider = new SimpleSliderService(element[0]);
+
+        scope.slider = new SimpleSliderService(element[0], attrs);
+
+        attrs.$observe('change', function(value) {
+          if (value) {
+            scope.slider.change(value);
+          }
+        });
+
       }
     };
   }]);
