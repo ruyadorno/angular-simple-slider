@@ -1,4 +1,4 @@
-angular.module('angularSimpleSliderApp')
+angular.module('angularSimpleSlider')
   .directive('simpleSlider', ['SimpleSliderService', function (SimpleSliderService) {
 
     'use strict';

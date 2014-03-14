@@ -1,3 +1,3 @@
 'use strict';
 
-angular.module('angularSimpleSliderApp', []);
+angular.module('angularSimpleSlider', []);

@@ -4,6 +4,7 @@
   "authors": [
     "Ruy Adorno"
   ],
+  "main": "dist/angular-simple-slider.js",
   "keywords": [
     "slider",
     "simple",

@@ -1,4 +1,4 @@
-angular.module('angularSimpleSliderApp')
+angular.module('angularSimpleSlider')
   .factory('SimpleSliderService', function () {
 
     'use strict';
