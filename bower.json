@@ -14,12 +14,12 @@
     "images"
   ],
   "dependencies": {
-    "angular": ">=1.0.0"
+    "angular": "^1.x.x"
   },
   "devDependencies": {
-    "angular-mocks": "1.2.6",
-    "angular-scenario": "1.2.6",
-    "SimpleSlider": ">=0.2.0"
+    "angular-mocks": "^1.x.x",
+    "angular-scenario": "^1.x.x",
+    "SimpleSlider": "^0.x.x"
   },
   "license": "MIT"
 }
