@@ -5,7 +5,9 @@
   if (typeof module != 'undefined' && module.exports) {
     module.exports = definition();
   } else if (typeof define == 'function' && define.amd) {
-    define(context.SimpleSlider = definition());
+    define(function() {
+      return (window.SimpleSlider = definition());
+    });
   } else {
     context.SimpleSlider = definition();
   }
@@ -35,6 +37,22 @@
       return setTimeout(function() { callback(lastTime = nextTime); }, nextTime - now);
     };
     window.cancelAnimationFrame = clearTimeout;
+  }
+
+  // visibilitychange setup, from: https://developer.mozilla.org/en-US/docs/Web/Guide/User_experience/Using_the_Page_Visibility_API
+  var hidden, visibilityChange, hasVisibilityHandler;
+  if (typeof document.hidden !== "undefined") { // Opera 12.10 and Firefox 18 and later support
+    hidden = "hidden";
+    visibilityChange = "visibilitychange";
+  } else if (typeof document.mozHidden !== "undefined") {
+    hidden = "mozHidden";
+    visibilityChange = "mozvisibilitychange";
+  } else if (typeof document.msHidden !== "undefined") {
+    hidden = "msHidden";
+    visibilityChange = "msvisibilitychange";
+  } else if (typeof document.webkitHidden !== "undefined") {
+    hidden = "webkitHidden";
+    visibilityChange = "webkitvisibilitychange";
   }
 
   // ------------------
@@ -180,6 +198,14 @@
 
   }
 
+  function updateVisibility(slider) {
+    if (document[hidden]) {
+      slider.pauseAutoPlay();
+    } else {
+      slider.resumeAutoPlay();
+    }
+  }
+
   // ------------------
 
   var SimpleSlider = function(containerElem, options){
@@ -197,7 +223,7 @@
     // Get user defined options or its default values
     this.trProp = getdef(options.transitionProperty, 'left');
     this.trTime = getdef(options.transitionDuration, 0.5);
-    this.delay = getdef(options.transitionDelay, 3);
+    this.delay = getdef(options.transitionDelay, 3) * 1000;
     this.unit = getUnit([options.startValue, options.visibleValue, options.endValue], this.trProp);
     this.startVal = parseInt(getdef(options.startValue, -width + this.unit), 10);
     this.visVal = parseInt(getdef(options.visibleValue, '0' + this.unit), 10);
@@ -246,6 +272,7 @@
     this.actualIndex = 0;
     this.inserted = null;
     this.removed = null;
+    this.remainingTime = this.delay;
 
   };
 
@@ -255,18 +282,75 @@
       return false;
     }
 
-    if (this.autoPlay && this.imgs.length > 1) {
+    this.startInterval();
 
-      var scope = this;
+  };
 
-      if (this.interval) {
-        window.clearInterval(this.interval);
-      }
+  SimpleSlider.prototype.startInterval = function () {
 
-      this.interval = window.setInterval(function(){
-        scope.change(scope.nextIndex());
-      }, this.delay * 1000);
+    var self = this;
+
+    if (!this.isAutoPlayable()) {
+      return;
     }
+
+    if (this.interval) {
+      window.clearTimeout(this.interval);
+    }
+
+    // Slideshow/autoPlay timing logic
+    (function setInterval() {
+      self.intervalStartTime = Date.now();
+      self.interval = window.setTimeout(function(){
+
+        self.intervalStartTime = Date.now();
+        self.remainingTime = self.delay; // resets time, used by pause/resume logic
+
+        self.change(self.nextIndex());
+
+        // loops
+        setInterval();
+
+      }, self.remainingTime);
+    })();
+
+    // Handles user leaving/activating the current page/tab
+    (function handleVisibilityChange() {
+
+      if (!hasVisibilityHandler && typeof document.addEventListener !== "undefined") {
+
+        document.addEventListener(visibilityChange, function onVisibilityChange() {
+
+          updateVisibility(self);
+        }, false);
+
+        // only assign handler once
+        hasVisibilityHandler = true;
+      }
+    })();
+
+  };
+
+  SimpleSlider.prototype.isAutoPlayable = function () {
+    return this.autoPlay && this.imgs.length > 1;
+  };
+
+  SimpleSlider.prototype.pauseAutoPlay = function () {
+
+    if (!this.isAutoPlayable()) {
+      return;
+    }
+
+    this.remainingTime = (this.delay) - (Date.now() - this.intervalStartTime);
+
+    window.clearTimeout(this.interval);
+    this.interval = null;
+
+  };
+
+  SimpleSlider.prototype.resumeAutoPlay = function () {
+
+    this.startInterval();
 
   };
 
@@ -305,11 +389,15 @@
 
     this.change(this.nextIndex());
 
+    this.startInterval();
+
   };
 
   SimpleSlider.prototype.prev = function(){
 
     this.change(this.prevIndex());
+
+    this.startInterval();
 
   };
 
@@ -329,7 +417,7 @@
 
     var newIndex = this.actualIndex-1;
 
-    if (newIndex <= 0) {
+    if (newIndex < 0) {
       newIndex = this.imgs.length-1;
     }
 
@@ -339,7 +427,7 @@
 
   SimpleSlider.prototype.dispose = function(){
 
-    window.clearInterval(this.interval);
+    window.clearTimeout(this.interval);
 
     if (this.imgs) {
       var i = this.imgs.length;
@@ -360,21 +448,26 @@
     this.actualIndex = null;
     this.inserted = null;
     this.removed = null;
+    this.remainingTime = null;
   };
 
   return SimpleSlider;
 
 });
+
 ;'use strict';
 
 angular.module('angularSimpleSlider', []);
-;angular.module('angularSimpleSlider')
+;var context = this;
+
+angular.module('angularSimpleSlider')
   .factory('SimpleSliderService', function () {
 
     'use strict';
 
-    return window.SimpleSlider;
-
+    return typeof module != 'undefined' && module.exports ? // jshint ignore:line
+      module.exports :
+      context.SimpleSlider;
   });
 ;angular.module('angularSimpleSlider')
   .directive('simpleSlider', ['SimpleSliderService', function (SimpleSliderService) {
