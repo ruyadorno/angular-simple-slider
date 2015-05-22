@@ -230,6 +230,7 @@
     this.endVal = parseInt(getdef(options.endValue, width + this.unit), 10);
     this.autoPlay = getdef(parseStringToBoolean(options.autoPlay), true);
     this.ease = getdef(options.ease, SimpleSlider.defaultEase);
+    this.onChange = getdef(options.onChange, null);
 
     this.init();
   };
@@ -356,7 +357,7 @@
 
   SimpleSlider.prototype.startAnim = function(target, fromValue, toValue){
 
-    anim(target.style, this.trProp, this.unit, this.trTime * 1000, 0, 0, fromValue, toValue, SimpleSlider.defaultEase);
+    anim(target.style, this.trProp, this.unit, this.trTime * 1000, 0, 0, fromValue, toValue, this.ease);
 
   };
 
@@ -378,10 +379,18 @@
 
   SimpleSlider.prototype.change = function(newIndex){
 
+    var prevIndex = this.actualIndex;
+
     this.remove(this.actualIndex);
     this.insert(newIndex);
 
     this.actualIndex = newIndex;
+
+    if (this.onChange ||
+      Object.prototype.toString.call(this.onChange) == '[object Function]') {
+
+      this.onChange(prevIndex, this.actualIndex);
+    }
 
   };
 
@@ -470,22 +479,52 @@ angular.module('angularSimpleSlider')
       context.SimpleSlider;
   });
 ;angular.module('angularSimpleSlider')
-  .directive('simpleSlider', ['SimpleSliderService', function (SimpleSliderService) {
+  .directive('simpleSlider', ['SimpleSliderService', '$timeout', function (SimpleSliderService, $timeout) {
 
     'use strict';
 
     return {
 
-      restrict: 'E',
-      scope: {},
+      restrict: 'AE',
+      scope: {
+        onChange: '&',
+        slide: '=?simpleSliderSlide',
+        slider: '=?simpleSlider'
+      },
 
       link: function postLink(scope, element, attrs) {
+        var options = attrs;
 
-        scope.slider = new SimpleSliderService(element[0], attrs);
+        if (attrs.onChange) {
+          options.onChange = scope.onChange;
+        } else {
+          options.onChange = function () {
+            if (scope.slide !== scope.slider.actualIndex) {
+              $timeout(function () {
+                scope.$apply(function () {
+                  scope.slide = scope.slider.actualIndex;
+                });
+              });
+            }
+          };
+        }
 
-        attrs.$observe('change', function(value) {
-          if (value) {
-            scope.slider.change(value);
+        if (element[0].children.length === 0) {
+          scope.$watch(function () {
+            return element[0].children.length > 0;
+          }, function (hasChildren) {
+            if (hasChildren) {
+              scope.slider = new SimpleSliderService(element[0], options);
+            }
+          });
+        } else {
+          scope.slider = new SimpleSliderService(element[0], options);
+        }
+
+        scope.$watch('slide', function(next, prev) {
+          if (next && next !== prev) {
+            scope.slider.change(next);
+            scope.slide = next;
           }
         });
 
