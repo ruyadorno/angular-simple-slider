@@ -334,8 +334,7 @@ module.exports = function (grunt) {
           'app/scripts/services/simplesliderservice.js',
           'app/scripts/directives/simple-slider.js'
         ],
-        dest: 'dist/angular-simple-slider.js'
-      },
+        dest: 'dist/angular-simple-slider.js' },
     },
 
     // Test settings
