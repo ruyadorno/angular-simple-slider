@@ -13,7 +13,7 @@ angular.module('angularSimpleSlider')
       },
 
       link: function postLink(scope, element, attrs) {
-        var options = attrs, watcher;
+        var options = attrs, disposeWatcher;
 
         if (attrs.onChange) {
           options.onChange = scope.onChange;
@@ -30,12 +30,12 @@ angular.module('angularSimpleSlider')
         }
 
         if (element[0].children.length === 0) {
-          watcher = scope.$watch(function () {
+          disposeWatcher = scope.$watch(function () {
             return element[0].children.length > 0;
           }, function (hasChildren) {
             if (hasChildren) {
               scope.slider = new SimpleSliderService(element[0], options);
-              watcher();
+              disposeWatcher();
             }
           });
         } else {
