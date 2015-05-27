@@ -13,7 +13,7 @@ angular.module('angularSimpleSlider')
       },
 
       link: function postLink(scope, element, attrs) {
-        var options = attrs, disposeWatcher;
+        var options = attrs, disposeWatcher, disposeCurrentWatcher;
 
         if (attrs.onChange) {
           options.onChange = scope.onChange;
@@ -42,12 +42,24 @@ angular.module('angularSimpleSlider')
           scope.slider = new SimpleSliderService(element[0], options);
         }
 
-        scope.$watch('current', function(next, prev) {
+        disposeCurrentWatcher = scope.$watch('current', function(next, prev) {
           if (next && next !== prev) {
             scope.slider.change(parseInt(next));
           }
         });
 
+        // Clears up all functionality from directive when removed
+        scope.$on('$destroy', function () {
+
+          // Dispose watchers
+          if (disposeWatcher) {
+            disposeWatcher();
+          }
+          disposeCurrentWatcher();
+
+          // Dispose SimpleSlider instance
+          scope.slider.dispose();
+        });
       }
     };
   }]);
