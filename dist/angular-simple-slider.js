@@ -523,7 +523,7 @@ angular.module('angularSimpleSlider')
         }
 
         scope.$watch('current', function(next, prev) {
-          if (next && next !== prev) {
+          if (next !== undefined && next !== prev) {
             scope.slider.change(parseInt(next));
           }
         });
